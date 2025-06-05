@@ -48,3 +48,65 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+
+
+
+Salon-App/
+│
+├── app/                            # Screens + navigation (Expo Router pages)
+│   ├── _layout.tsx                # Global layout (like Root Navigator)
+│   ├── index.tsx                  # Home screen
+│   ├── booking/                   # Nested route: /booking
+│   │   └── index.tsx
+│   ├── services/                  # Nested route: /services
+│   │   └── index.tsx
+│   ├── auth/                      # Login/Register routes
+│   │   ├── login.tsx
+│   │   └── register.tsx
+│   └── profile/                   # Profile route
+│       └── index.tsx
+│
+├── components/                    # Reusable UI components
+│   ├── Header.tsx
+│   ├── ServiceCard.tsx
+│   └── Button.tsx
+│
+├── constants/                     # Static data, colors, configs
+│   ├── colors.ts
+│   └── services.ts
+│
+├── hooks/                         # Custom React hooks
+│   └── useAuth.ts
+│
+├── lib/                           # API, utility functions
+│   ├── api.ts                     # Axios/Fetch base API
+│   └── utils.ts
+│
+├── store/                         # Global state (Context, Zustand, Redux)
+│   └── userStore.ts
+│
+├── assets/                        # Images, fonts, icons
+│   ├── images/
+│   └── fonts/
+│
+├── global.css                     # Tailwind CSS styles
+├── tailwind.config.js
+├── metro.config.js
+├── babel.config.js
+├── tsconfig.json
+├── package.json
+├── app.json                       # Expo config
+└── README.md
+
+
+Folder/File	Purpose
+app/	Routing-based screens using expo-router
+components/	Reusable UI blocks like cards, headers
+constants/	Static config or mock data (like service list, colors)
+hooks/	Custom logic, e.g., useAuth, useBooking
+lib/	API utilities, date formatters, etc.
+store/	Global app state (if needed)
+assets/	Images, fonts
+global.css	Tailwind’s directives go here
