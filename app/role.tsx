@@ -30,7 +30,7 @@ export default function Index() {
       <View className="flex-row justify-center w-full mb-12">
         {/* Barber Card */}
         <TouchableOpacity
-          onPress={() => router.push("/BarberSide/auth/signup")} 
+          onPress={() => router.push("/auth/login_barber")} 
           className="items-center mx-2 px-2 py-4 rounded-2xl w-[44%] h-48  bg-gray-100"
           activeOpacity={0.7}
         >
@@ -39,7 +39,8 @@ export default function Index() {
         </TouchableOpacity>
 
         {/* Customer Card */}
-        <TouchableOpacity 
+        <TouchableOpacity
+          onPress={() => router.push("/auth/login_customer")}  
           className="items-center mx-2 px-2 py-4 rounded-2xl bg-gray-100 w-[44%] h-48"
           activeOpacity={0.7}
         >

@@ -1,46 +1,44 @@
-import { View, Text, TextInput, TouchableOpacity, BackHandler } from "react-native";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import React, { useEffect, useRef } from 'react';
+import { View, Animated } from 'react-native';
+import { useRouter } from 'expo-router';
 
-const router = useRouter();
+export default function IndexPage() {
+  const router = useRouter();
 
-export default function Login() {
+  const slideAnim = useRef(new Animated.Value(50)).current; // Start below
+  const opacityAnim = useRef(new Animated.Value(0)).current; // Start invisible
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-      BackHandler.exitApp();
-      return true; // prevent default behavior
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Navigate to /role after animation finishes
+      setTimeout(() => {
+        router.replace('/role'); // Replace prevents going back to splash
+      }, 500); // Optional delay before navigating
     });
-
-    return () => backHandler.remove();
   }, []);
 
   return (
-    <View className="flex-1 justify-center p-6 bg-white">
-      <Text className="text-3xl font-bold mb-8">Login</Text>
-      
-      <TextInput
-        placeholder="Email"
-        className="border p-4 rounded-lg mb-4 bg-gray-100"
-        keyboardType="email-address"
-      />
-      
-      <TextInput
-        placeholder="Password"
-        className="border p-4 rounded-lg mb-6 bg-gray-100"
-        secureTextEntry
-      />
-      
-      <TouchableOpacity className="bg-blue-500 p-4 rounded-lg">
-        <Text className="text-white text-center font-bold">Login</Text>
-      </TouchableOpacity>
-      
-      <View className="mt-4 flex-row justify-center">
-        <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/role")}>
-            <Text className="text-blue-500">SignUp</Text>
-        </TouchableOpacity>
-      </View>
+    <View className="flex-1 justify-center items-center p-6 bg-white">
+      <Animated.Text
+        style={{
+          transform: [{ translateY: slideAnim }],
+          opacity: opacityAnim,
+        }}
+        className="text-2xl font-bold mb-8"
+      >
+        WELCOME TO DIGI BARBER
+      </Animated.Text>
     </View>
   );
 }

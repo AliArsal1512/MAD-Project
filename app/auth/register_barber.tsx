@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 const router = useRouter();
 
-export default function Signup() {
+export default function Register_baber() {
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -17,7 +17,10 @@ export default function Signup() {
 
   return (
     <View className="flex-1 justify-center p-6 bg-white">
-      <Text className="text-3xl font-bold mb-8">Sign Up</Text>
+      <View className="flex items-center">
+      <Text className="text-3xl font-bold mb-2">Hi Barber </Text>
+      <Text className="text-xl font-bold mb-8">Welcome to Registeration form</Text>
+      </View>
       
       <TextInput
         placeholder="Name"
@@ -42,7 +45,7 @@ export default function Signup() {
       
       <View className="mt-4 flex-row justify-center">
         <Text>Already have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/")}>
+        <TouchableOpacity onPress={() => router.back()}>
             <Text className="text-blue-500">Login</Text>
         </TouchableOpacity>
       </View>
