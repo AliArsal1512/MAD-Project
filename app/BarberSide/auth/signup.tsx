@@ -4,20 +4,25 @@ import { useEffect } from "react";
 
 const router = useRouter();
 
-export default function Login() {
+export default function Signup() {
 
-  useEffect(() => {
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-      BackHandler.exitApp();
-      return true; // prevent default behavior
-    });
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+        router.replace("/role"); // Assuming your role screen path is /role.tsx
+        return true;
+        });
 
-    return () => backHandler.remove();
-  }, []);
+        return () => backHandler.remove();
+    }, []);
 
   return (
     <View className="flex-1 justify-center p-6 bg-white">
-      <Text className="text-3xl font-bold mb-8">Login</Text>
+      <Text className="text-3xl font-bold mb-8">Sign Up</Text>
+      
+      <TextInput
+        placeholder="Name"
+        className="border p-4 rounded-lg mb-4 bg-gray-100"
+      />
       
       <TextInput
         placeholder="Email"
@@ -32,13 +37,13 @@ export default function Login() {
       />
       
       <TouchableOpacity className="bg-blue-500 p-4 rounded-lg">
-        <Text className="text-white text-center font-bold">Login</Text>
+        <Text className="text-white text-center font-bold">Create Account</Text>
       </TouchableOpacity>
       
       <View className="mt-4 flex-row justify-center">
-        <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/role")}>
-            <Text className="text-blue-500">SignUp</Text>
+        <Text>Already have an account? </Text>
+        <TouchableOpacity onPress={() => router.push("/")}>
+            <Text className="text-blue-500">Login</Text>
         </TouchableOpacity>
       </View>
     </View>
