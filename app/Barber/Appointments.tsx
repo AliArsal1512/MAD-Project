@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import Footer from "@/components/barber/Footer";
 
 
 interface Appointment {
@@ -98,8 +99,8 @@ export default function Appointments() {
   );
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-        <View className='flex-row justify-between mb-2'>
+    <View className="flex-1 justify-between bg-white p-4 mb-4">
+      <View className='flex-row justify-between mb-2'>
       <Text className="text-2xl font-bold mb-4">My Appointments</Text>
       <TouchableOpacity onPress={() => router.push("/Barber/BarberProfile")}
       className='bg-zinc-400 rounded-md px-2 py-3'><Text className=''>Porfile</Text></TouchableOpacity>
@@ -110,6 +111,7 @@ export default function Appointments() {
         renderItem={renderItem}
         ListEmptyComponent={<Text>No appointments yet.</Text>}
       />
+      <Footer />
     </View>
   );
 }

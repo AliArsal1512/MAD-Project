@@ -6,10 +6,9 @@ export default function Footer() {
   const pathname = usePathname()
 
   const tabs = [
-    { label: 'Home', path: '/', key: 'home' },
-    { label: 'Appointments', path: '/appointments', key: 'appointments' },
-    { label: 'Settings', path: '/settings', key: 'settings' },
-    { label: 'Profile', path: '/profile', key: 'profile' },
+    { label: 'Appointments', path: '/Barber/Appointments', key: 'appointments' },
+    { label: 'Settings', path: '/Barber/BarberSettings', key: 'settings' },
+    { label: 'Profile', path: '/Barber/BarberProfile', key: 'profile' },
   ]
 
   return (
