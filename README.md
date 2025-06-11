@@ -110,3 +110,57 @@ lib/	API utilities, date formatters, etc.
 store/	Global app state (if needed)
 assets/	Images, fonts
 global.css	Tailwind’s directives go here
+
+FRs
+
+1. User Authentication & Profiles
+Customers can:
+
+Register/login (email/phone + password or social login).
+
+View/edit their profile (name, contact info, profile picture).
+
+Barbers can:
+
+Register/login as a professional barber (with verification if needed).
+
+Set up a profile (shop name, location, services, pricing, working hours, photos).
+
+2. Barber Discovery & Search
+Customers can:
+
+Browse/search barbers by:
+
+Location (city/neighborhood).
+
+Ratings/reviews.
+
+Services offered (e.g., haircut, beard trim).
+
+Price range.
+
+View barber profiles (portfolio, availability, pricing).
+
+3. Appointment Booking
+Customers can:
+
+Select a barber, service, date, and available time slot.
+
+Confirm/cancel/modify appointments.
+
+Receive booking confirmation (email/in-app notification).
+
+Barbers can:
+
+Set their availability (working hours, breaks, days off).
+
+Approve/reject/cancel appointments.
+
+4. Notifications & Reminders
+Automated reminders for:
+
+Upcoming appointments (customer & barber).
+
+Cancellations/rescheduling.
+
+Notifications for new bookings.

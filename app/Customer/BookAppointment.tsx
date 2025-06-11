@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from "expo-router";
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import Footer from '@/components/customer/Footer';
 
 
 const dummyBarbers = [
@@ -65,6 +66,7 @@ export default function BookAppointment() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
+      <Footer />
     </View>
   );
 }

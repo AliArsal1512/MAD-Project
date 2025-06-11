@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import Footer from '@/components/customer/Footer';
 
 const initialAppointments = [
   {
@@ -68,18 +69,21 @@ export default function MyAppointments() {
   );
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-      <Text className="text-2xl font-bold mb-4 text-center">My Appointments</Text>
-      {appointments.length === 0 ? (
-        <Text className="text-center text-gray-600 mt-20">No appointments found.</Text>
-      ) : (
-        <FlatList
-          data={appointments}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+    <View className="flex-1 justify-between bg-white p-4 mb-4">
+      <View className="flex-1 bg-gray-100 p-4">
+        <Text className="text-2xl font-bold mb-4 text-center">My Appointments</Text>
+        {appointments.length === 0 ? (
+          <Text className="text-center text-gray-600 mt-20">No appointments found.</Text>
+        ) : (
+          <FlatList
+            data={appointments}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
+      <Footer />
     </View>
   );
 }
