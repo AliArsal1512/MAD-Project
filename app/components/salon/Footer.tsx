@@ -1,14 +1,14 @@
-import { View, TouchableOpacity, Text } from 'react-native'
-import { useRouter, usePathname } from 'expo-router'
+import { usePathname, useRouter } from 'expo-router'
+import { Text, TouchableOpacity, View } from 'react-native'
 
 export default function Footer() {
   const router = useRouter()
   const pathname = usePathname()
 
   const tabs = [
-    { label: 'Appointments', path: '/Barber/Appointments', key: 'appointments' },
-    { label: 'Settings', path: '/Barber/BarberSettings', key: 'settings' },
-    { label: 'Profile', path: '/Barber/BarberProfile', key: 'profile' },
+    { label: 'Appointments', path: '/Salon/Appointments', key: 'appointments' },
+    { label: 'Settings', path: '/Salon/Settings', key: 'settings' },
+    { label: 'Profile', path: '/Salon/Profile', key: 'profile' }
   ]
 
   return (

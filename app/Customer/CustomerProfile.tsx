@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import Footer from '../components/customer/Footer';
+import { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  Linking,
+    Image,
+    Linking,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import Footer from '@/components/customer/Footer';
 
 const initialCustomerInfo = {
   image:

@@ -1,12 +1,11 @@
 import { View, Text, TextInput, TouchableOpacity, BackHandler, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { signUpCustomer } from "../apis/authApi";
 
 export default function RegisterCustomer() {
   const router = useRouter();
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
+const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,57 +20,44 @@ export default function RegisterCustomer() {
     return () => backHandler.remove();
   }, []);
 
-
-const handleSignUp = async () => {
-    setLoading(true);
-    
+  const handleSignUp = async () => {
     try {
-      // 1. Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      if (!fullName || !phone || !email || !password || !confirmPassword) {
+        Alert.alert("Validation Error", "All fields are required.");
+        return;
+      }
+  
+      if (password !== confirmPassword) {
+        Alert.alert("Password Mismatch", "Passwords do not match.");
+        return;
+      }
+  
+      setLoading(true);
+  
+      const result = await signUpCustomer({
         email,
         password,
+        name: fullName,
+        phone,
+        gender: "customer", // or "male"/"female"/"other" if you're collecting it later
       });
-
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("User creation failed");
-
-      // 2. Add to users table with 'customer' role
-      const { error: userError } = await supabase
-        .from('users')
-        .insert([{ 
-          id: authData.user.id, 
-          email, 
-          role: 'customer' 
-        }]);
-
-      if (userError) throw userError;
-
-      // 3. Create customer profile
-      const { error: profileError } = await supabase
-        .from('customers')
-        .insert([{
-          user_id: authData.user.id,
-          first_name,
-          last_name,
-          phone,
-        }]);
-
-      if (profileError) throw profileError;
-
-      Alert.alert("Success", "Customer account created successfully!");
-      router.replace("/auth/login_customer");
-    } catch (error) {
-        if (error instanceof Error) {
-          Alert.alert("Error", error.message);
-        } else if (typeof error === "object" && error !== null && "message" in error) {
-          Alert.alert("Error", String((error as any).message));
-        } else {
-          Alert.alert("Error", JSON.stringify(error)); // fallback
-        }
-    } finally {
+  
       setLoading(false);
+  
+      if (result.error) {
+        Alert.alert("Sign Up Failed", result.error);
+      } else {
+        Alert.alert("Success", "Account created successfully!");
+        router.replace("/auth/login_customer");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Unexpected error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
     }
   };
+  
+
 
   return (
     <View className="flex-1 justify-center p-6 bg-white">
@@ -81,16 +67,9 @@ const handleSignUp = async () => {
       </View>
       
       <TextInput
-        placeholder="First Name"
-        value={first_name}
-        onChangeText={setFirstName}
-        className="border p-4 rounded-lg mb-4 bg-gray-100"
-      />
-
-      <TextInput
-        placeholder="Last Name"
-        value={last_name}
-        onChangeText={setLastName}
+        placeholder="Full Name"
+        value={fullName}
+        onChangeText={setFullName}
         className="border p-4 rounded-lg mb-4 bg-gray-100"
       />
       

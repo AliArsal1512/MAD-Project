@@ -1,13 +1,19 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, BackHandler, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { loginUser } from "../apis/authApi";
+import {
+  Alert,
+  BackHandler,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { loginUser } from "../apis/authApi"; 
 import { usePushToken } from "../utils/usePushToken";
 import { saveExpoPushToken } from "../utils/saveExpoPushToken";
 
-// import { supabase } from "@/lib/supabase";
 
-export default function LoginCustomer() {
+export default function LoginBarber() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +21,7 @@ export default function LoginCustomer() {
 
   const pushToken = usePushToken();
 
+  // Exit app on back button press
   useEffect(() => {
     const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
       BackHandler.exitApp();
@@ -25,70 +32,66 @@ export default function LoginCustomer() {
 
   // const handleLogin = async () => {
   //   if (!email || !password) {
-  //     Alert.alert("Validation Error", "Please enter both email and password.");
+  //     Alert.alert("Missing Fields", "Please fill in all required fields.");
   //     return;
   //   }
-  
+
+  //   setLoading(true);
   //   try {
-  //     setLoading(true);
-  
   //     const result = await loginUser(email, password);
-  
-  //     setLoading(false);
-  
+
   //     if (result.error) {
   //       Alert.alert("Login Failed", result.error);
-  //     } else {
-  //       Alert.alert("Success", "Login successful!");
-  //       // ✅ Navigate to home/dashboard after login
-  //       router.replace("/Customer/BookAppointment"); // change route if you want a specific screen
+  //       return;
   //     }
-  //   } catch (error) {
+
+  //     // Optional: Add role-based check if needed
+  //     // For now assume login is for salon
+  //     router.replace("/Salon/Profile");
+  //   } catch (err: any) {
+  //     Alert.alert("Error", err.message || "Something went wrong");
+  //   } finally {
   //     setLoading(false);
-  //     console.error("Unexpected login error:", error);
-  //     Alert.alert("Error", "Something went wrong. Please try again.");
   //   }
   // };
 
-
-const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert("Validation Error", "Please enter both email and password.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const result = await loginUser(email, password);
-    setLoading(false);
-
-    if (result.error) {
-      Alert.alert("Login Failed", result.error);
-    } else {
-      const userId = result?.user?.id || result?.data?.user?.id;
-
-      // ✅ Save push token to `profiles` table
-      if (userId && pushToken) {
-        await saveExpoPushToken(userId, pushToken, false); // false = customer
-      }
-
-      router.replace("/Customer/BookAppointment");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Missing Fields", "Please fill in all required fields.");
+      return;
     }
-  } catch (error) {
-    setLoading(false);
-    console.error("Unexpected login error:", error);
-    Alert.alert("Error", "Something went wrong. Please try again.");
-  }
-};
-
-
+  
+    setLoading(true);
+    try {
+      const result = await loginUser(email, password);
+  
+      if (result.error) {
+        Alert.alert("Login Failed", result.error);
+        return;
+      }
+  
+      const userId = result?.user?.id || result?.data?.user?.id;
+  
+      // ✅ Save push token to salons table
+      if (userId && pushToken) {
+        await saveExpoPushToken(userId, pushToken, true); // true = salon
+      }
+  
+      router.replace("/Salon/Profile");
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <View className="flex-1 justify-center p-6 bg-white">
       <View className="flex items-center p-2">
-        <Text className="text-3xl font-bold mb-2">Hi there</Text>
+        <Text className="text-3xl font-bold mb-2">Hi Barber</Text>
         <Text className="text-xl font-bold mb-8">Welcome to Login</Text>
       </View>
-      
+
       <TextInput
         placeholder="Email"
         value={email}
@@ -97,7 +100,7 @@ const handleLogin = async () => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      
+
       <TextInput
         placeholder="Password"
         value={password}
@@ -105,7 +108,7 @@ const handleLogin = async () => {
         className="border p-4 rounded-lg mb-6 bg-gray-100"
         secureTextEntry
       />
-      
+
       <TouchableOpacity
         onPress={handleLogin}
         className="bg-blue-500 p-4 rounded-lg"
@@ -115,11 +118,11 @@ const handleLogin = async () => {
           {loading ? "Logging in..." : "Login"}
         </Text>
       </TouchableOpacity>
-      
+
       <View className="mt-4 flex-row justify-center">
         <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/auth/register_customer")}>
-          <Text className="text-blue-500">SignUp</Text>
+        <TouchableOpacity onPress={() => router.push("/auth/register_salon")}>
+          <Text className="text-blue-500">Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>

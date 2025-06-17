@@ -1,13 +1,12 @@
-import { Text, View, TouchableOpacity, BackHandler } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { BackHandler, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BarberIcon from "../assets/icons/BarberIcon";
 import CustomerIcon from "../assets/icons/CustomerIcon";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
-
-const router = useRouter();
 
 export default function Index() {
+    const router = useRouter();
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -30,12 +29,12 @@ export default function Index() {
       <View className="flex-row justify-center w-full mb-12">
         {/* Barber Card */}
         <TouchableOpacity
-          onPress={() => router.push("/auth/login_barber")} 
+          onPress={() => router.push("/auth/login_salon")} 
           className="items-center mx-2 px-2 py-4 rounded-2xl w-[44%] h-48  bg-gray-100"
           activeOpacity={0.7}
         >
           <BarberIcon size={60} color="black" />
-          <Text className="mt-6 text-xl font-semibold">Barber</Text>
+          <Text className="mt-6 text-xl font-semibold">Salon</Text>
         </TouchableOpacity>
 
         {/* Customer Card */}
