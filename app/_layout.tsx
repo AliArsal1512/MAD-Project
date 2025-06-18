@@ -6,11 +6,12 @@ import { store } from "./store"; // make sure this path is correct
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }} >
         <Stack.Screen 
           name="index" 
           options={{ 
-            headerShown: false 
+            headerShown: false,
+            contentStyle: { paddingTop: 12, margin:10 } 
           }} 
         />
       </Stack>
