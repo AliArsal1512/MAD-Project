@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  BackHandler,
   Image,
   ScrollView,
   Text,
@@ -10,11 +12,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 import { getSalonProfile, getServices } from "../apis/salonApi";
 import Footer from "../components/salon/Footer";
-import { useDispatch } from "react-redux";
-import { setSalonProfile } from "../store/slices/salonProfileSlice";
 import { AppDispatch } from "../store";
+import { setSalonProfile } from "../store/slices/salonProfileSlice";
 
 export default function Profile() {
   const router = useRouter();
@@ -23,6 +25,37 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(
+      useCallback(() => {
+        const onBackPress = () => {
+          Alert.alert(
+            "Exit App",
+            "Are you sure you want to exit?",
+            [
+              {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel",
+              },
+              {
+                text: "Yes",
+                onPress: () => BackHandler.exitApp(),
+              },
+            ],
+            { cancelable: false }
+          );
+          return true; // prevent default behavior
+        };
+  
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          onBackPress
+        );
+  
+        return () => backHandler.remove();
+      }, [])
+    );
 
   useEffect(() => {
     const fetchData = async () => {

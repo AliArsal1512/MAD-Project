@@ -10,8 +10,8 @@ export default function Index() {
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-        router.replace("/");
-        return true;
+            router.replace("/");
+            return true;
         });
 
         return () => backHandler.remove();

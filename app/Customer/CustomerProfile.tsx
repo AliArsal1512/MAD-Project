@@ -1,6 +1,7 @@
-import Footer from '../components/customer/Footer';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
+    Alert,
+    BackHandler,
     Image,
     Linking,
     ScrollView,
@@ -9,6 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import Footer from '../components/customer/Footer';
 
 const initialCustomerInfo = {
   image:
@@ -30,6 +32,37 @@ export default function CustomerProfile() {
   const handleCall = () => {
     if (!isEditing) Linking.openURL(`tel:${customerInfo.phone}`);
   };
+
+  useEffect(
+        useCallback(() => {
+          const onBackPress = () => {
+            Alert.alert(
+              "Exit App",
+              "Are you sure you want to exit?",
+              [
+                {
+                  text: "Cancel",
+                  onPress: () => null,
+                  style: "cancel",
+                },
+                {
+                  text: "Yes",
+                  onPress: () => BackHandler.exitApp(),
+                },
+              ],
+              { cancelable: false }
+            );
+            return true; // prevent default behavior
+          };
+    
+          const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            onBackPress
+          );
+    
+          return () => backHandler.remove();
+        }, [])
+      );
 
   return (
     <View className="flex-1 justify-between bg-white p-4 mb-4">

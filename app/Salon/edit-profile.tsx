@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,11 +13,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
 import { updateSalonProfile } from "../apis/salonApi";
-import { useDispatch } from "react-redux";
-import { setSalonProfile } from "../store/slices/salonProfileSlice";
-import { AppDispatch } from "../store";
 import Footer from "../components/salon/Footer";
+import { AppDispatch } from "../store";
+import { setSalonProfile } from "../store/slices/salonProfileSlice";
 
 export default function EditProfile() {
   const router = useRouter();
@@ -27,6 +26,7 @@ export default function EditProfile() {
 
   const salonProfile = useSelector((state) => state.salonProfile);
   const dispatch = useDispatch<AppDispatch>();
+  
 
   useEffect(() => {
     if (salonProfile && Object.keys(salonProfile).length > 0) {

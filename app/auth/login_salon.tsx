@@ -1,6 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
   Text,
@@ -8,52 +11,27 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { loginUser } from "../apis/authApi"; 
-import { usePushToken } from "../utils/usePushToken";
+import { loginUser } from "../apis/authApi";
 import { saveExpoPushToken } from "../utils/saveExpoPushToken";
-
+import { usePushToken } from "../utils/usePushToken";
 
 export default function LoginBarber() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const pushToken = usePushToken();
 
   // Exit app on back button press
   useEffect(() => {
     const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-      BackHandler.exitApp();
+      router.replace("/role");
       return true;
     });
     return () => backHandler.remove();
   }, []);
-
-  // const handleLogin = async () => {
-  //   if (!email || !password) {
-  //     Alert.alert("Missing Fields", "Please fill in all required fields.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   try {
-  //     const result = await loginUser(email, password);
-
-  //     if (result.error) {
-  //       Alert.alert("Login Failed", result.error);
-  //       return;
-  //     }
-
-  //     // Optional: Add role-based check if needed
-  //     // For now assume login is for salon
-  //     router.replace("/Salon/Profile");
-  //   } catch (err: any) {
-  //     Alert.alert("Error", err.message || "Something went wrong");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -70,11 +48,10 @@ export default function LoginBarber() {
         return;
       }
   
-      const userId = result?.user?.id || result?.data?.user?.id;
+      const userId = result.user?.id;
   
-      // ✅ Save push token to salons table
       if (userId && pushToken) {
-        await saveExpoPushToken(userId, pushToken, true); // true = salon
+        await saveExpoPushToken(userId, pushToken, true);
       }
   
       router.replace("/Salon/Profile");
@@ -86,45 +63,105 @@ export default function LoginBarber() {
   };
   
   return (
-    <View className="flex-1 justify-center p-6 bg-white">
-      <View className="flex items-center p-2">
-        <Text className="text-3xl font-bold mb-2">Hi Barber</Text>
-        <Text className="text-xl font-bold mb-8">Welcome to Login</Text>
-      </View>
-
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        className="border p-4 rounded-lg mb-4 bg-gray-100"
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        className="border p-4 rounded-lg mb-6 bg-gray-100"
-        secureTextEntry
-      />
-
+    <LinearGradient
+      colors={['#f3f4f6', '#ffffff']}
+      className="flex-1"
+    >
+      <View className="flex-1 justify-center p-6">
+        {/* Back Button */}
       <TouchableOpacity
-        onPress={handleLogin}
-        className="bg-blue-500 p-4 rounded-lg"
-        disabled={loading}
+        onPress={() => router.replace('/role')} // Use your actual route name for role.tsx
+        style={{
+          padding: 10,
+          backgroundColor: '#eee',
+          borderRadius: 5,
+          alignSelf: 'flex-start',
+          marginBottom: 20,
+        }}
       >
-        <Text className="text-white text-center font-bold">
-          {loading ? "Logging in..." : "Login"}
-        </Text>
+        <Text>← Back</Text>
       </TouchableOpacity>
+        <View className="flex items-center mb-12">
+          <Text className="text-4xl font-bold text-gray-800 mb-2">Welcome Back</Text>
+          <Text className="text-lg text-gray-600">Sign in to your salon account</Text>
+        </View>
 
-      <View className="mt-4 flex-row justify-center">
-        <Text>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push("/auth/register_salon")}>
-          <Text className="text-blue-500">Sign Up</Text>
+        <View className="space-y-4">
+          <View className="relative">
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              className="bg-white p-4 rounded-xl border border-gray-200 pl-12"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Ionicons
+              name="mail-outline"
+              size={20}
+              color="#6b7280"
+              style={{ position: 'absolute', left: 16, top: 16 }}
+            />
+          </View>
+
+          <View className="relative">
+            <TextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              className="bg-white p-4 rounded-xl border border-gray-200 pl-12"
+              secureTextEntry={!showPassword}
+            />
+            <Ionicons
+              name="lock-closed-outline"
+              size={20}
+              color="#6b7280"
+              style={{ position: 'absolute', left: 16, top: 16 }}
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={{ position: 'absolute', right: 16, top: 16 }}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color="#6b7280"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleLogin}
+          className="bg-blue-600 p-4 rounded-xl mt-8 shadow-lg"
+          disabled={loading}
+          style={{
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+          }}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white text-center font-bold text-lg">
+              Sign In
+            </Text>
+          )}
         </TouchableOpacity>
+
+        <View className="mt-6 flex-row justify-center items-center">
+          <Text className="text-gray-600">Don't have an account? </Text>
+          <TouchableOpacity 
+            onPress={() => router.push("/auth/register_salon")}
+            className="ml-1"
+          >
+            <Text className="text-blue-600 font-semibold">Sign Up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
