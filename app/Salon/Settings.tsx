@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import Footer from '@/components/barber/Footer';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import Footer from '../components/salon/Footer';
 
 export default function BarberSettings() {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function BarberSettings() {
         style: 'destructive',
         onPress: () => {
           // handle logout logic
-          router.replace('/auth/login_barber');
+          router.replace('/auth/login_salon');
         },
       },
     ]);
@@ -26,13 +26,19 @@ export default function BarberSettings() {
 
         <TouchableOpacity
             className="bg-gray-100 p-4 rounded-lg mb-4"
-            onPress={() => router.push('/Barber/BarberProfile')}
+            onPress={() => router.push('/Salon/edit-profile')}
         >
             <Text className="text-lg">Edit Profile</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4">
+        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
+        onPress={() => router.push('/Salon/Appointments')}>
             <Text className="text-lg">Manage Appointments</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
+        onPress={() => router.push('/Salon/Services')}>
+            <Text className="text-lg">Manage Services</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4">

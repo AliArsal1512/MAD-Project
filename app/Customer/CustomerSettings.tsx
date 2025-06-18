@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import Footer from '../components/customer/Footer';
 import { useRouter } from 'expo-router';
-import Footer from '@/components/customer/Footer';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 
 export default function CustomerSettings() {
   const router = useRouter();
