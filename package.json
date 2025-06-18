@@ -22,7 +22,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "eas-cli": "^16.10.1",
-    "expo": "~53.0.10",
+    "expo": "latest",
     "expo-auth-session": "~6.2.0",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.6",

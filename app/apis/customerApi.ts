@@ -47,3 +47,40 @@ export async function getCurrentUser() {
   
     return { data: formatted, error: null };
   }
+
+export async function getCurrentCustomerProfile() {
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: authError?.message || "User not authenticated" };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles") // or "profiles" if you're still using old name
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) return { error: profileError.message };
+
+  return { profile };
+}
+
+
+export async function editCustomerProfile(updatedData: {
+  full_name?: string;
+  phone?: string;
+  gender?: string;
+  email?: string;
+}) {
+  const { user, error } = await getCurrentUser();
+  if (error || !user) return { error: error || "User not authenticated" };
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update(updatedData)
+    .eq("id", user.id);
+
+  if (updateError) return { error: updateError.message };
+  return { success: true };
+}

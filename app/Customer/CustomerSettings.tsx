@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert, BackHandler, Text, TouchableOpacity, View } from 'react-native';
-import Footer from '../components/salon/Footer';
+import Footer from '../components/customer/Footer';
 
 export default function BarberSettings() {
   const router = useRouter();
@@ -47,22 +47,22 @@ export default function BarberSettings() {
   return (
     <View className="flex-1 justify-between bg-white p-4 mb-4">
       <View className="flex-1 bg-white p-6">
-        <Text className="text-2xl font-bold mb-6">Barber Settings</Text>
+        <Text className="text-2xl font-bold mb-6">Settings</Text>
 
         <TouchableOpacity
           className="bg-gray-100 p-4 rounded-lg mb-4"
-          onPress={() => router.push('/Salon/edit-profile')}
+          onPress={() => router.push('/Customer/edit-profile')}
         >
           <Text className="text-lg">Edit Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
-          onPress={() => router.push('/Salon/Appointments')}>
+          onPress={() => router.push('/Customer/BookAppointment')}>
           <Text className="text-lg">Manage Appointments</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
-          onPress={() => router.push('/Salon/Services')}>
+          onPress={() => router.push('/Customer/CustomerProfile')}>
           <Text className="text-lg">Manage Services</Text>
         </TouchableOpacity>
 
