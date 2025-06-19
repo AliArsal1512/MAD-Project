@@ -1,6 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, BackHandler, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchCustomerAppointments } from '../apis/customerApi';
 import Footer from '../components/customer/Footer';
@@ -25,6 +25,37 @@ export default function MyAppointments() {
   useEffect(() => {
     loadAppointments();
   }, []);
+
+  useEffect(
+      useCallback(() => {
+        const onBackPress = () => {
+          Alert.alert(
+            "Exit App",
+            "Are you sure you want to exit?",
+            [
+              {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel",
+              },
+              {
+                text: "Yes",
+                onPress: () => BackHandler.exitApp(),
+              },
+            ],
+            { cancelable: false }
+          );
+          return true; // prevent default behavior
+        };
+  
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          onBackPress
+        );
+  
+        return () => backHandler.remove();
+      }, [])
+    );
 
   const handleCancel = (id: string) => {
     Alert.alert(

@@ -1,11 +1,15 @@
-import { Ionicons } from "@expo/vector-icons";
+import React, { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
+  BackHandler,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -16,28 +20,54 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { updateSalonProfile } from "../apis/salonApi";
 import Footer from "../components/salon/Footer";
-import { AppDispatch } from "../store";
+import { useThemeContext } from "../contexts/ThemeContext";
+import { supabase } from '../credentials/supabaseClient';
+import { AppDispatch, RootState } from "../store";
 import { setSalonProfile } from "../store/slices/salonProfileSlice";
 
 export default function EditProfile() {
   const router = useRouter();
+  const { colors } = useThemeContext();
   const [loading, setLoading] = useState(false);
-  const [salonData, setSalonData] = useState({});
+  const [salonData, setSalonData] = useState({
+    name: '',
+    description: '',
+    city: '',
+    address: '',
+    phone: '',
+    location: '',
+    workingHours: '',
+    image: '',
+  });
 
-  const salonProfile = useSelector((state) => state.salonProfile);
+  const salonProfile = useSelector((state: RootState) => state.salonProfile);
   const dispatch = useDispatch<AppDispatch>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+      const onBackPress = () => {
+        router.replace('/Salon/Profile'); // Replace '/Role' with your target route path
+        return true;
+      };
+  
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  
+      return () => backHandler.remove();
+    }, [router]);
   
 
   useEffect(() => {
     if (salonProfile && Object.keys(salonProfile).length > 0) {
       setSalonData({
-        name: salonProfile.salon_name || "",
-        description: salonProfile.description || "",
-        city: salonProfile.city || "",
-        address: salonProfile.address || "",
-        phone: salonProfile.phone || "", // only if added in DB
+        name: salonProfile.salon_name || '',
+        description: salonProfile.description || '',
+        city: salonProfile.city || '',
+        address: salonProfile.address || '',
+        phone: salonProfile.phone || '',
+        location: salonProfile.city || '',
         workingHours: `From: ${salonProfile.open_time} - ${salonProfile.close_time}`,
-        image: salonProfile.ambience_images?.[0] || "",
+        image: salonProfile.ambience_images?.[0] || '',
       });
     }
   }, [salonProfile]);
@@ -97,16 +127,66 @@ export default function EditProfile() {
     }
   };
 
+  // Helper to upload image to Supabase Storage
+  const uploadImageAsync = async (uri: string) => {
+    try {
+      setUploading(true);
+      const fileExt = uri.split('.').pop()?.split('?')[0] || 'jpg';
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const { data, error } = await supabase.storage.from('avatars').upload(filePath, blob, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: blob.type || 'image/jpeg',
+      });
+      if (error) throw error;
+      const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      setUploading(false);
+      return publicUrlData.publicUrl;
+    } catch (e: any) {
+      setUploading(false);
+      Alert.alert('Upload failed', e.message || 'Could not upload image');
+      return null;
+    }
+  };
+
+  // Pick image and upload
+  const handlePickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please grant media library permissions to upload a profile picture.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      const publicUrl = await uploadImageAsync(uri);
+      if (publicUrl) {
+        setSalonData((prev: any) => ({
+          ...prev,
+          image: publicUrl,
+        }));
+      }
+    }
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Ionicons name="arrow-back" size={24} color="black" />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold">Edit Profile</Text>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text }}>Edit Profile</Text>
         <TouchableOpacity onPress={handleSave} disabled={loading}>
-          <Text className="text-blue-500 font-semibold">
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>
             {loading ? "Saving..." : "Save"}
           </Text>
         </TouchableOpacity>
@@ -126,39 +206,67 @@ export default function EditProfile() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Profile Image */}
-          <View className="items-center mb-6">
-            <View className="relative">
-              <Image
-                source={
-                  salonData.image
-                    ? { uri: salonData.image }
-                    : require("../../assets/images/adaptive-icon.png")
-                }
-                className="w-40 h-40 rounded-2xl"
-              />
-              <TouchableOpacity className="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow-md">
-                <Ionicons name="camera" size={20} color="black" />
-              </TouchableOpacity>
-            </View>
+          <View style={{ alignItems: 'center', marginBottom: 24 }}>
+            <>
+              <Pressable onPress={() => setModalVisible(true)} style={{ alignItems: 'center' }}>
+                <Image
+                  source={salonData.image ? { uri: salonData.image } : require("../../assets/images/adaptive-icon.png")}
+                  style={{ width: 160, height: 160, borderRadius: 24, borderWidth: 2, borderColor: colors.primary }}
+                />
+                {/* Camera Icon Button */}
+                <TouchableOpacity
+                  onPress={handlePickImage}
+                  disabled={uploading}
+                  style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: colors.surface, borderRadius: 20, padding: 8, borderWidth: 1, borderColor: colors.border }}
+                  hitSlop={10}
+                >
+                  <Ionicons name="camera" size={20} color={colors.primary} />
+                </TouchableOpacity>
+              </Pressable>
+              {uploading && <Text style={{ color: colors.primary, marginTop: 8 }}>Uploading...</Text>}
+              {/* Modal for enlarged image */}
+              <Modal
+                visible={modalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setModalVisible(false)}
+              >
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' }}>
+                  <Pressable style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} onPress={() => setModalVisible(false)} />
+                  <Image
+                    source={salonData.image ? { uri: salonData.image } : require("../../assets/images/adaptive-icon.png")}
+                    style={{ width: 320, height: 320, borderRadius: 24, borderWidth: 3, borderColor: colors.primary, marginBottom: 24 }}
+                    resizeMode="contain"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(false)}
+                    style={{ backgroundColor: colors.surface, padding: 12, borderRadius: 24, borderWidth: 1, borderColor: colors.border }}
+                  >
+                    <Text style={{ color: colors.text, fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            </>
           </View>
 
           {/* Form Fields */}
-          <View className="space-y-8">
+          <View style={{ gap: 32 }}>
             {/* Salon Name */}
             <View>
-              <Text className="text-gray-600 mb-2">Salon Name</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>Salon Name</Text>
               <TextInput
                 value={salonData.name}
                 onChangeText={(text) =>
                   setSalonData({ ...salonData, name: text })
                 }
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
 
             {/* Description */}
             <View>
-              <Text className="text-gray-600 mb-2">Description</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>Description</Text>
               <TextInput
                 value={salonData.description}
                 onChangeText={(text) =>
@@ -166,65 +274,70 @@ export default function EditProfile() {
                 }
                 multiline
                 numberOfLines={4}
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
 
             {/* Location */}
             <View>
-              <Text className="text-gray-600 mb-2">City</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>City</Text>
               <TextInput
                 value={salonData.city}
                 onChangeText={(text) =>
                   setSalonData({ ...salonData, location: text })
                 }
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
 
             {/* Address */}
             <View>
-              <Text className="text-gray-600 mb-2">Address</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>Address</Text>
               <TextInput
                 value={salonData.address}
                 onChangeText={(text) =>
                   setSalonData({ ...salonData, address: text })
                 }
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
 
             {/* Phone */}
             <View>
-              <Text className="text-gray-600 mb-2">Phone</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>Phone</Text>
               <TextInput
                 value={salonData.phone}
                 onChangeText={(text) =>
                   setSalonData({ ...salonData, phone: text })
                 }
                 keyboardType="phone-pad"
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
 
             {/* Working Hours */}
             <View>
-              <Text className="text-gray-600 mb-2">Working Hours</Text>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8 }}>Working Hours</Text>
               <TextInput
                 value={salonData.workingHours}
                 onChangeText={(text) =>
                   setSalonData({ ...salonData, workingHours: text })
                 }
-                className="border border-gray-300 rounded-lg p-3"
+                style={{ borderWidth: 1, borderColor: colors.border, borderRadius: 8, padding: 12, color: colors.text, backgroundColor: colors.card }}
+                placeholderTextColor={colors.textSecondary}
               />
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
       {/* Footer (now stays fixed at bottom) */}
-      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+      <SafeAreaView style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
         <Footer />
-      </View>
+      </SafeAreaView>
     </SafeAreaView>
   );
 }

@@ -1,5 +1,8 @@
 import { usePathname, useRouter } from 'expo-router'
 import { Text, TouchableOpacity, View } from 'react-native'
+import AppointmentsIcon from '../../../assets/icons/AppointmentsIcon'
+import ProfileIcon from '../../../assets/icons/ProfileIcon'
+import SettingsIcon from '../../../assets/icons/SettingsIcon'
 import { useThemeContext } from '../../contexts/ThemeContext'
 
 export default function Footer() {
@@ -8,9 +11,9 @@ export default function Footer() {
   const { colors } = useThemeContext()
 
   const tabs = [
-    { label: 'Appointments', path: '/Salon/Appointments', key: 'appointments' },
-    { label: 'Settings', path: '/Salon/Settings', key: 'settings' },
-    { label: 'Profile', path: '/Salon/Profile', key: 'profile' }
+    { label: 'Appointments', path: '/Salon/Appointments', key: 'appointments', Icon: AppointmentsIcon },
+    { label: 'Settings', path: '/Salon/Settings', key: 'settings', Icon: SettingsIcon },
+    { label: 'Profile', path: '/Salon/Profile', key: 'profile', Icon: ProfileIcon }
   ]
 
   return (
@@ -25,6 +28,7 @@ export default function Footer() {
     }}>
       {tabs.map((tab) => {
         const isActive = pathname === tab.path
+        const { Icon } = tab
 
         return (
           <TouchableOpacity
@@ -32,6 +36,11 @@ export default function Footer() {
             onPress={() => router.push(tab.path as any)}
             style={{ alignItems: 'center' }}
           >
+            <Icon
+              width={24}
+              height={24}
+              fill={isActive ? colors.text : colors.textSecondary}
+            />
             <Text style={{
               fontSize: 14,
               color: isActive ? colors.text : colors.textSecondary,

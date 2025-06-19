@@ -97,7 +97,7 @@ export default function SalonSettings() {
             borderWidth: 1,
             borderColor: colors.border,
           }}
-          onPress={() => router.push('/Salon/edit-profile')}
+          onPress={() => router.replace('/Salon/edit-profile')}
         >
           <Text style={{ 
             color: colors.text,
@@ -135,7 +135,7 @@ export default function SalonSettings() {
             borderWidth: 1,
             borderColor: colors.border,
           }}
-          onPress={() => router.push('/Salon/Services')}
+          onPress={() => router.replace('/Salon/Services')}
         >
           <Text style={{ 
             color: colors.text,

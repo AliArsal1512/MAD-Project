@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect } from 'react';
+import { Alert, BackHandler, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logoutUser } from "../apis/authApi";
 import Footer from '../components/customer/Footer';
@@ -9,6 +10,37 @@ import { useThemeContext } from "../contexts/ThemeContext";
 export default function CustomerSettings() {
   const router = useRouter();
   const { colors } = useThemeContext();
+
+  useEffect(
+      useCallback(() => {
+        const onBackPress = () => {
+          Alert.alert(
+            "Exit App",
+            "Are you sure you want to exit?",
+            [
+              {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel",
+              },
+              {
+                text: "Yes",
+                onPress: () => BackHandler.exitApp(),
+              },
+            ],
+            { cancelable: false }
+          );
+          return true; // prevent default behavior
+        };
+  
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          onBackPress
+        );
+  
+        return () => backHandler.remove();
+      }, [])
+    );
 
   const handleLogout = async () => {
     Alert.alert(
@@ -72,7 +104,7 @@ export default function CustomerSettings() {
             borderWidth: 1,
             borderColor: colors.border,
           }}
-          onPress={() => router.push('/Customer/edit-profile')}
+          onPress={() => router.replace('/Customer/edit-profile')}
         >
           <Text style={{ 
             color: colors.text,
@@ -91,7 +123,7 @@ export default function CustomerSettings() {
             borderWidth: 1,
             borderColor: colors.border,
           }}
-          onPress={() => router.push('/Customer/BookAppointment')}
+          onPress={() => router.replace('/Customer/MyAppointments')}
         >
           <Text style={{ 
             color: colors.text,
@@ -103,20 +135,21 @@ export default function CustomerSettings() {
 
         <TouchableOpacity 
           style={{
-            backgroundColor: colors.surface,
+            backgroundColor: colors.primary + '20',
             padding: 16,
             borderRadius: 12,
             marginBottom: 16,
             borderWidth: 1,
-            borderColor: colors.border,
+            borderColor: colors.primary + '40',
           }}
-          onPress={() => router.push('/Customer/CustomerProfile')}
+          onPress={() => router.replace('/Customer/CoolFeature')}
         >
           <Text style={{ 
-            color: colors.text,
-            fontSize: 16 
+            color: colors.primary,
+            fontSize: 16,
+            fontWeight: '600'
           }}>
-            Manage Services
+            ✨ Cool Feature
           </Text>
         </TouchableOpacity>
 

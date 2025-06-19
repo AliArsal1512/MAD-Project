@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { addService } from "../apis/salonApi";
 import Footer from "../components/salon/Footer";
 import { useThemeContext } from "../contexts/ThemeContext";
@@ -19,6 +22,18 @@ export default function Services() {
   const [duration, setDuration] = useState("");
   const [price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+        const onBackPress = () => {
+          router.replace('/Salon/Settings'); // Replace '/Role' with your target route path
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    
+        return () => backHandler.remove();
+      }, [router]);
 
   const handleSubmit = async () => {
     if (!name || !description || !duration || !price) {
@@ -58,7 +73,7 @@ export default function Services() {
   };
 
   return (
-    <View style={{ 
+    <SafeAreaView style={{ 
       flex: 1, 
       backgroundColor: colors.background 
     }}>
@@ -220,6 +235,6 @@ export default function Services() {
         </TouchableOpacity>
       </ScrollView>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }

@@ -74,10 +74,23 @@ export async function signUpSalon(input: SalonSignUpInput) {
   return { success: true };
 }
 
-// 🔐 Login
-export async function loginUser(email: string, password: string) {
+// 🔐 Login (with userType restriction)
+export async function loginUser(email: string, password: string, userType: 'customer' | 'salon') {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
+  const user = data.user;
+  if (!user) return { error: 'No user returned' };
+
+  // Check if user exists in the correct table
+  let table = userType === 'customer' ? 'profiles' : 'salons';
+  const { data: profile, error: profileError } = await supabase
+    .from(table)
+    .select('id')
+    .eq('id', user.id)
+    .single();
+  if (profileError || !profile) {
+    return { error: `No ${userType} account found for these credentials.` };
+  }
   return {
     success: true,
     session: data.session,

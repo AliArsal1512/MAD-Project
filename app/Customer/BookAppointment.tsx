@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, BackHandler, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getAllSalons } from "../apis/salonApi";
 import Footer from "../components/customer/Footer";
@@ -11,6 +11,37 @@ export default function BookAppointment() {
   const { colors } = useThemeContext();
   const [salons, setSalons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(
+      useCallback(() => {
+        const onBackPress = () => {
+          Alert.alert(
+            "Exit App",
+            "Are you sure you want to exit?",
+            [
+              {
+                text: "Cancel",
+                onPress: () => null,
+                style: "cancel",
+              },
+              {
+                text: "Yes",
+                onPress: () => BackHandler.exitApp(),
+              },
+            ],
+            { cancelable: false }
+          );
+          return true; // prevent default behavior
+        };
+  
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          onBackPress
+        );
+  
+        return () => backHandler.remove();
+      }, [])
+    );
 
   useEffect(() => {
     const fetchSalons = async () => {
@@ -32,7 +63,7 @@ export default function BookAppointment() {
   }, []);
 
   const handleBook = (salonName: string) => {
-    router.push({
+    router.replace({
       pathname: "/Customer/RequestBooking",
       params: { salonName },
     });

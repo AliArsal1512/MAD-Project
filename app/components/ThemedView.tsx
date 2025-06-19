@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import { Animated, ViewProps } from 'react-native';
+import { useAnimatedTheme } from '../contexts/AnimatedThemeProvider';
 import { useThemeContext } from '../contexts/ThemeContext';
 
 interface ThemedViewProps extends ViewProps {
@@ -14,27 +15,28 @@ export const ThemedView: React.FC<ThemedViewProps> = ({
   children, 
   ...props 
 }) => {
+  const { animatedColors } = useAnimatedTheme() || {};
   const { colors } = useThemeContext();
 
   const getBackgroundColor = () => {
     switch (variant) {
       case 'surface':
-        return colors.surface;
+        return animatedColors?.surface || colors.surface;
       case 'card':
-        return colors.card;
+        return animatedColors?.card || colors.card;
       default:
-        return colors.background;
+        return animatedColors?.background || colors.background;
     }
   };
 
   return (
-    <View
+    <Animated.View
       style={[
         {
           backgroundColor: getBackgroundColor(),
           ...(bordered && {
             borderWidth: 1,
-            borderColor: colors.border,
+            borderColor: animatedColors?.border || colors.border,
           }),
         },
         style,
@@ -42,6 +44,6 @@ export const ThemedView: React.FC<ThemedViewProps> = ({
       {...props}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 }; 

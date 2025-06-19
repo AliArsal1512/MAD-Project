@@ -43,7 +43,7 @@ export default function LoginBarber() {
   
     setLoading(true);
     try {
-      const result = await loginUser(email, password);
+      const result = await loginUser(email, password, 'salon');
   
       if (result.error) {
         Alert.alert("Login Failed", result.error);

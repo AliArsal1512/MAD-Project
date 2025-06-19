@@ -4,13 +4,15 @@ import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { createAppointment } from "../apis/appointmentApi";
 import { getSalonWithServices } from "../apis/salonApi";
 import Footer from "../components/customer/Footer";
@@ -42,6 +44,17 @@ export default function RequestBooking() {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+      const onBackPress = () => {
+        router.push('/Customer/BookAppointment'); // Replace '/Role' with your target route path
+        return true;
+      };
+  
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  
+      return () => backHandler.remove();
+    }, [router]);
 
   useEffect(() => {
     const generateTimeSlots = () => {
@@ -275,7 +288,7 @@ export default function RequestBooking() {
   }
 
   return (
-    <View style={{ 
+    <SafeAreaView style={{ 
       flex: 1, 
       backgroundColor: colors.background 
     }}>
@@ -286,8 +299,6 @@ export default function RequestBooking() {
         }}
         contentContainerStyle={{
           padding: 24,
-          paddingTop: 60, // Safe area for status bar
-          paddingBottom: 120, // Safe area for footer
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -522,7 +533,7 @@ export default function RequestBooking() {
           }}
         >
           <Text style={{ 
-            color: colors.surface,
+            color: colors.text,
             fontSize: 16, 
             fontWeight: '600' 
           }}>
@@ -531,6 +542,6 @@ export default function RequestBooking() {
         </TouchableOpacity>
       </ScrollView>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }

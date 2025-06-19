@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, BackHandler, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { getConfirmedSalonAppointments, updateAppointmentStatus } from "../apis/appointmentApi";
 import Footer from "../components/salon/Footer";
 import { useThemeContext } from "../contexts/ThemeContext";
@@ -10,6 +11,17 @@ export default function ConfirmedAppointments() {
   const { colors } = useThemeContext();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const onBackPress = () => {
+      router.push('/Salon/Appointments'); // Replace '/Role' with your target route path
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    return () => backHandler.remove();
+  }, [router]);
 
   useEffect(() => {
     fetchAppointments();
@@ -182,7 +194,7 @@ export default function ConfirmedAppointments() {
   ), [colors]);
 
   return (
-    <View style={{ 
+    <SafeAreaView style={{ 
       flex: 1, 
       backgroundColor: colors.background 
     }}>
@@ -265,6 +277,6 @@ export default function ConfirmedAppointments() {
         )}
       </View>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }

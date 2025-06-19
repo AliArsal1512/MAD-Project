@@ -72,6 +72,7 @@ export async function editCustomerProfile(updatedData: {
   phone?: string;
   gender?: string;
   email?: string;
+  avatar_url?: string;
 }) {
   const { user, error } = await getCurrentUser();
   if (error || !user) return { error: error || "User not authenticated" };

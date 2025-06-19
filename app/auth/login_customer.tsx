@@ -64,7 +64,7 @@ const handleLogin = async () => {
 
   try {
     setLoading(true);
-    const result = await loginUser(email, password);
+    const result = await loginUser(email, password, 'customer');
     setLoading(false);
 
     if (result.error) {
