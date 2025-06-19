@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import {
+  BackHandler,
   Image,
   ScrollView,
   Text,
@@ -14,13 +16,20 @@ import {
   updateAppointmentStatus,
 } from "../apis/appointmentApi";
 import Footer from "../components/salon/Footer";
-import moment from "moment";
 
 export default function ConfirmedAppointments() {
   const router = useRouter();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  useEffect(() => {
+      const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+        router.replace("/Salon/Appointments");
+        return true;
+      });
+      return () => backHandler.remove();
+    }, []);
 
   useEffect(() => {
     const fetchAppointments = async () => {

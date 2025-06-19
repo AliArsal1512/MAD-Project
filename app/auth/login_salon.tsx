@@ -82,7 +82,7 @@ export default function LoginBarber() {
         <Text>← Back</Text>
       </TouchableOpacity>
         <View className="flex items-center mb-12">
-          <Text className="text-4xl font-bold text-gray-800 mb-2">Welcome Back</Text>
+          <Text className="text-4xl font-bold text-gray-800 mb-2">Welcome Back Barb</Text>
           <Text className="text-lg text-gray-600">Sign in to your salon account</Text>
         </View>
 
