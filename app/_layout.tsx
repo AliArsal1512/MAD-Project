@@ -1,20 +1,42 @@
 import { Stack } from "expo-router";
-import "../global.css";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
 import { Provider } from "react-redux";
-import { store } from "./store"; // make sure this path is correct
+import "../global.css";
+import { ThemeProvider, useThemeContext } from "./contexts/ThemeContext";
+import { store } from "./store";
 
-export default function RootLayout() {
+function ThemedStack() {
+  const { colors, isDark } = useThemeContext();
+  
   return (
-    <Provider store={store}>
-      <Stack screenOptions={{ headerShown: false }} >
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <Stack 
+        screenOptions={{ 
+          headerShown: false,
+          contentStyle: { 
+            backgroundColor: colors.background,
+          }
+        }} 
+      >
         <Stack.Screen 
           name="index" 
           options={{ 
             headerShown: false,
-            contentStyle: { paddingTop: 12, margin:10 } 
           }} 
         />
       </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <Provider store={store}>
+      <ThemeProvider>
+        <ThemedStack />
+      </ThemeProvider>
     </Provider>
   );
 }

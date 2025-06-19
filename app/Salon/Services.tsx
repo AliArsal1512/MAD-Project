@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { addService } from "../apis/salonApi";
+import Footer from "../components/salon/Footer";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 export default function Services() {
+  const { colors } = useThemeContext();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
@@ -46,72 +49,177 @@ export default function Services() {
       Alert.alert("Error", result.error);
     } else {
       Alert.alert("Success", "Service added successfully!");
+      // Reset form
+      setName("");
+      setDescription("");
+      setDuration("");
+      setPrice("");
     }
-
-    Alert.alert("Success", "Service added successfully");
-
-    // Reset form
-    setName("");
-    setDescription("");
-    setDuration("");
-    setPrice("");
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-4">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text className="text-2xl font-bold mb-4">Add New Service</Text>
+    <View style={{ 
+      flex: 1, 
+      backgroundColor: colors.background 
+    }}>
+      <ScrollView 
+        style={{ 
+          flex: 1, 
+          backgroundColor: colors.background 
+        }}
+        contentContainerStyle={{
+          padding: 24,
+          paddingTop: 60, // Safe area for status bar
+          paddingBottom: 120, // Safe area for footer
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={{ 
+          color: colors.text,
+          fontSize: 28, 
+          fontWeight: 'bold', 
+          marginBottom: 24 
+        }}>
+          Add New Service
+        </Text>
 
-        <Text className="text-lg font-medium mb-1">Service Name</Text>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="e.g., Haircut"
-          className="border border-gray-300 rounded-lg px-3 py-2 mb-4"
-        />
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16, 
+            fontWeight: '600', 
+            marginBottom: 8 
+          }}>
+            Service Name
+          </Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="e.g., Haircut"
+            placeholderTextColor={colors.textSecondary}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              color: colors.text,
+            }}
+          />
+        </View>
 
-        <Text className="text-lg font-medium mb-1">Description</Text>
-        <TextInput
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Describe the service"
-          multiline
-          numberOfLines={4}
-          className="border border-gray-300 rounded-lg px-3 py-2 mb-4 text-base"
-        />
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16, 
+            fontWeight: '600', 
+            marginBottom: 8 
+          }}>
+            Description
+          </Text>
+          <TextInput
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Describe the service"
+            placeholderTextColor={colors.textSecondary}
+            multiline
+            numberOfLines={4}
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              color: colors.text,
+              height: 100,
+              textAlignVertical: 'top',
+            }}
+          />
+        </View>
 
-        <Text className="text-lg font-medium mb-1">Duration (minutes)</Text>
-        <TextInput
-          value={duration}
-          onChangeText={setDuration}
-          placeholder="e.g., 30"
-          keyboardType="numeric"
-          className="border border-gray-300 rounded-lg px-3 py-2 mb-4"
-        />
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16, 
+            fontWeight: '600', 
+            marginBottom: 8 
+          }}>
+            Duration (minutes)
+          </Text>
+          <TextInput
+            value={duration}
+            onChangeText={setDuration}
+            placeholder="e.g., 30"
+            placeholderTextColor={colors.textSecondary}
+            keyboardType="numeric"
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              color: colors.text,
+            }}
+          />
+        </View>
 
-        <Text className="text-lg font-medium mb-1">Price (PKR)</Text>
-        <TextInput
-          value={price}
-          onChangeText={setPrice}
-          placeholder="e.g., 1000"
-          keyboardType="numeric"
-          className="border border-gray-300 rounded-lg px-3 py-2 mb-6"
-        />
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16, 
+            fontWeight: '600', 
+            marginBottom: 8 
+          }}>
+            Price (PKR)
+          </Text>
+          <TextInput
+            value={price}
+            onChangeText={setPrice}
+            placeholder="e.g., 1000"
+            placeholderTextColor={colors.textSecondary}
+            keyboardType="numeric"
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 16,
+              color: colors.text,
+            }}
+          />
+        </View>
 
         <TouchableOpacity
           onPress={handleSubmit}
-          className="bg-blue-500 rounded-xl py-3 flex-row justify-center items-center"
           disabled={loading}
+          style={{
+            backgroundColor: loading ? colors.border : colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: loading ? 0.6 : 1,
+          }}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.surface} />
           ) : (
-            <Text className="text-white text-center text-lg font-semibold">
+            <Text style={{ 
+              color: colors.surface,
+              fontSize: 16, 
+              fontWeight: '600' 
+            }}>
               Add Service
             </Text>
           )}
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+      <Footer />
+    </View>
   );
 }

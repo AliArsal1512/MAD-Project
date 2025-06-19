@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import { Animated, View } from 'react-native';
+import { useThemeContext } from './contexts/ThemeContext';
 
 export default function IndexPage() {
   const router = useRouter();
+  const { colors } = useThemeContext();
 
   const slideAnim = useRef(new Animated.Value(50)).current; // Start below
   const opacityAnim = useRef(new Animated.Value(0)).current; // Start invisible
@@ -29,13 +31,23 @@ export default function IndexPage() {
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center p-6 bg-white">
+    <View style={{ 
+      flex: 1, 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      padding: 24, 
+      backgroundColor: colors.background 
+    }}>
       <Animated.Text
         style={{
           transform: [{ translateY: slideAnim }],
           opacity: opacityAnim,
+          color: colors.text,
+          fontSize: 24,
+          fontWeight: 'bold',
+          marginBottom: 32,
+          textAlign: 'center',
         }}
-        className="text-2xl font-bold mb-8"
       >
         WELCOME TO DIGI BARBER
       </Animated.Text>

@@ -8,9 +8,11 @@ import {
   updateAppointmentStatus,
 } from "../apis/appointmentApi";
 import Footer from "../components/salon/Footer";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 export default function Appointments() {
   const router = useRouter();
+  const { colors } = useThemeContext();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
@@ -135,23 +137,68 @@ export default function Appointments() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row items-center p-4 border-b border-gray-200">
-        <TouchableOpacity onPress={() => router.back()} className="mr-4">
-          <Ionicons name="arrow-back" size={24} color="black" />
+    <SafeAreaView style={{
+      flex: 1,
+      backgroundColor: colors.background
+    }}>
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+        backgroundColor: colors.card,
+      }}>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold mr-4">Appointments</Text>
+        <Text style={{
+          color: colors.text,
+          fontSize: 20,
+          fontWeight: 'bold',
+          marginRight: 16
+        }}>
+          Appointments
+        </Text>
 
-        <TouchableOpacity onPress={() => router.replace("/Salon/confirmedAppoinments")} className="mr-2">
-        <Text className="text-sm font-bold bg-slate-400 rounded-md p-2">confirmed Appoinments</Text>
+        <TouchableOpacity 
+          onPress={() => router.replace("/Salon/confirmedAppoinments")} 
+          style={{ marginLeft: 'auto' }}
+        >
+          <Text style={{
+            color: colors.text,
+            fontSize: 14,
+            fontWeight: 'bold',
+            backgroundColor: colors.surface,
+            borderRadius: 8,
+            padding: 8,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}>
+            confirmed Appoinments
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
         {loading ? (
-          <Text className="text-center mt-10">Loading...</Text>
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 40
+          }}>
+            <Text style={{ color: colors.text }}>Loading...</Text>
+          </View>
         ) : appointments.length === 0 ? (
-          <Text className="text-center mt-10">No upcoming requests.</Text>
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 40
+          }}>
+            <Text style={{ color: colors.textSecondary }}>No upcoming requests.</Text>
+          </View>
         ) : (
           appointments.map((appointment) => {
             const customer = appointment.customer;
@@ -169,25 +216,50 @@ export default function Appointments() {
             );
 
             return (
-              
               <View
                 key={appointment.id}
-                className="m-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100"
+                style={{
+                  margin: 16,
+                  padding: 16,
+                  backgroundColor: colors.card,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}
               >
-                <View className="flex-row items-center mb-4">
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginBottom: 16
+                }}>
                   <Image
                     source={{
                       uri:
                         appointment.profiles?.avatar_url ||
                         "https://placehold.co/100x100",
                     }}
-                    className="w-12 h-12 rounded-full"
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 24
+                    }}
                   />
-                  <View className="ml-3">
-                    <Text className="text-lg font-semibold">
+                  <View style={{ marginLeft: 12 }}>
+                    <Text style={{
+                      color: colors.text,
+                      fontSize: 18,
+                      fontWeight: '600'
+                    }}>
                       {appointment.profiles?.full_name || "Customer"}
                     </Text>
-                    <Text className="text-gray-500">
+                    <Text style={{
+                      color: colors.textSecondary
+                    }}>
                       {appointment.appointment_services
                         ?.map((s: any) => s.service.name)
                         .join(", ")}
@@ -195,97 +267,118 @@ export default function Appointments() {
                   </View>
                 </View>
 
-                <View className="mb-4">
-                  <View className="flex-row items-center mb-2">
-                    <Ionicons name="calendar" size={20} color="#666" />
-                    <Text className="text-gray-600 ml-2">Date:</Text>
-                    <Text className="text-gray-600 ml-2">
+                <View style={{ marginBottom: 16 }}>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                  }}>
+                    <Ionicons name="calendar" size={20} color={colors.textSecondary} />
+                    <Text style={{
+                      color: colors.textSecondary,
+                      marginLeft: 8
+                    }}>
                       {appointment.appointment_date}
                     </Text>
                   </View>
-                  <View className="flex-row items-center mb-2">
-                    <Ionicons name="time" size={20} color="#666" />
-                    <Text className="text-gray-600 ml-2">Time:</Text>
-                    <Text className="text-gray-600 ml-2">
-                      {appointment.start_time}
-                    </Text>
-                    <Text className="text-gray-500 ml-2">
-                      (
-                      {appointment.appointment_services?.reduce(
-                        (sum: number, s: any) =>
-                          sum + s.service.duration_minutes,
-                        0
-                      )}{" "}
-                      min)
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                  }}>
+                    <Ionicons name="time" size={20} color={colors.textSecondary} />
+                    <Text style={{
+                      color: colors.textSecondary,
+                      marginLeft: 8
+                    }}>
+                      {appointment.start_time} - {appointment.end_time}
                     </Text>
                   </View>
-                  <View className="flex-row items-center">
-                    <Ionicons name="cash" size={20} color="#666" />
-                    <Text className="text-gray-600 ml-2">Total Bill:</Text>
-                    <Text className="text-gray-600 ml-2">
-                      Rs.{" "}
-                      {appointment.appointment_services?.reduce(
-                        (sum: number, s: any) => sum + s.service.price,
-                        0
-                      )}
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                  }}>
+                    <Ionicons name="cash" size={20} color={colors.textSecondary} />
+                    <Text style={{
+                      color: colors.textSecondary,
+                      marginLeft: 8
+                    }}>
+                      ${price}
                     </Text>
                   </View>
-<View className="flex-row items-center" >
-  
-  <Ionicons name="cash" size={20} color="#666" />
-  <Text className="text-gray-600 ml-2">Expire in:</Text>
-  <Text className="text-gray-600 ml-2">
-  {showexpiretime(appointment.expires_at)}
-</Text>
-</View>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8
+                  }}>
+                    <Ionicons name="timer" size={20} color={colors.textSecondary} />
+                    <Text style={{
+                      color: colors.textSecondary,
+                      marginLeft: 8
+                    }}>
+                      {duration} minutes
+                    </Text>
+                  </View>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}>
+                    <Ionicons name="warning" size={20} color={colors.warning} />
+                    <Text style={{
+                      color: colors.warning,
+                      marginLeft: 8,
+                      fontWeight: '600'
+                    }}>
+                      Expires: {showexpiretime(appointment.expires_at)}
+                    </Text>
+                  </View>
                 </View>
 
-                {appointment.status === "pending" ? (
-                  <View className="flex-row justify-end space-x-3">
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleAppointment(appointment.id, "reject")
-                      }
-                      className="px-4 py-2 border border-red-500 rounded-lg"
-                    >
-                      <Text className="text-red-500 font-semibold">Reject</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleAppointment(appointment.id, "accept")
-                      }
-                      className="px-4 py-2 bg-blue-500 rounded-lg"
-                    >
-                      <Text className="text-white font-semibold">Accept</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <View
-                    className={`mt-2 p-2 rounded-lg ${
-                      appointment.status === "confirmed"
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }`}
+                <View style={{
+                  flexDirection: 'row',
+                  gap: 12
+                }}>
+                  <TouchableOpacity
+                    onPress={() => handleAppointment(appointment.id, "accept")}
+                    style={{
+                      flex: 1,
+                      backgroundColor: colors.success,
+                      padding: 12,
+                      borderRadius: 8,
+                      alignItems: 'center'
+                    }}
                   >
-                    <Text
-                      className={`text-center font-semibold ${
-                        appointment.status === "confirmed"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {appointment.status === "confirmed"
-                        ? "Accepted"
-                        : "Rejected"}
+                    <Text style={{
+                      color: 'white',
+                      fontWeight: '600'
+                    }}>
+                      Accept
                     </Text>
-                  </View>
-                )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleAppointment(appointment.id, "reject")}
+                    style={{
+                      flex: 1,
+                      backgroundColor: colors.error,
+                      padding: 12,
+                      borderRadius: 8,
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Text style={{
+                      color: 'white',
+                      fontWeight: '600'
+                    }}>
+                      Reject
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             );
           })
         )}
       </ScrollView>
-
       <Footer />
     </SafeAreaView>
   );

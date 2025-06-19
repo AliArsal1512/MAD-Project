@@ -1,18 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { useLocalSearchParams } from "expo-router";
+import { format } from "date-fns";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { getSalonWithServices } from "../apis/salonApi";
 import { createAppointment } from "../apis/appointmentApi";
-import { format } from "date-fns";
+import { getSalonWithServices } from "../apis/salonApi";
+import Footer from "../components/customer/Footer";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 interface Service {
   id: string;
@@ -31,6 +33,8 @@ interface Salon {
 
 export default function RequestBooking() {
   const { salonName } = useLocalSearchParams();
+  const router = useRouter();
+  const { colors } = useThemeContext();
   const [salon, setSalon] = useState<Salon | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -186,205 +190,347 @@ export default function RequestBooking() {
     );
   };
 
-//   const handleRequestBooking = () => {
-//     if (selectedServices.length === 0) {
-//       Alert.alert("Error", "Please add at least one service");
-//       return;
-//     }
-//     Alert.alert(
-//       "Confirm Booking",
-//       `Would you like to book ${
-//         selectedServices.length
-//       } service(s) at ${selectedTime}?\nTotal Duration: ${calculateTotalDuration()} minutes\nTotal Amount: Rs. ${calculateTotal()}`,
-//       [
-//         {
-//           text: "Cancel",
-//           style: "cancel",
-//         },
-//         {
-//           text: "Book Now",
-//           onPress: () => {
-//             // Add your booking logic here
-//             Alert.alert("Success", "Booking confirmed!");
-//           },
-//         },
-//       ]
-//     );
-//   };
-const handleRequestBooking = async () => {
+  const handleRequestBooking = async () => {
     if (selectedServices.length === 0) {
       Alert.alert("Error", "Please add at least one service");
       return;
     }
-  
-    Alert.alert(
-      "Confirm Booking",
-      `Would you like to book ${
-        selectedServices.length
-      } service(s) at ${selectedTime}?\nTotal Duration: ${calculateTotalDuration()} minutes\nTotal Amount: Rs. ${calculateTotal()}`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Book Now",
-          onPress: async () => {
-            try {
-              const today = new Date();
-              const appointmentDate = today.toISOString().split("T")[0]; // format YYYY-MM-DD
-  
-              // Parse selected time like "3:00 PM"
-              const [time, period] = selectedTime.split(" ");
-              let [hour, minute] = time.split(":").map(Number);
-  
-              if (period === "PM" && hour !== 12) hour += 12;
-              if (period === "AM" && hour === 12) hour = 0;
-  
-              const start = new Date();
-              start.setHours(hour);
-              start.setMinutes(minute);
-              start.setSeconds(0);
-  
-              const duration = calculateTotalDuration();
-              const end = new Date(start.getTime() + duration * 60000); // Add duration in ms
-  
-              const startTime = start.toTimeString().split(" ")[0]; // "HH:MM:SS"
-              const endTime = end.toTimeString().split(" ")[0];
-  
-              const result = await createAppointment({
-                salonId: salon?.id || "", // Make sure `salon` has an `id` property
-                serviceIds: selectedServices.map((s) => s.id),
-                appointmentDate,
-                startTime,
-                endTime,
-              });
-  
-              if (result.error) {
-                Alert.alert("Booking Failed", result.error);
-              } else {
-                Alert.alert("Success", "Your booking has been confirmed!");
-                setSelectedServices([]);
-              }
-            } catch (error) {
-              Alert.alert("Error", "Something went wrong while booking.");
-            }
-          },
-        },
-      ]
-    );
+
+    if (selectedTime === "No available slots") {
+      Alert.alert("Error", "No available time slots");
+      return;
+    }
+
+    try {
+      // Convert selected time to 24-hour format for API
+      const time24 = convertTo24Hour(selectedTime);
+      const today = format(new Date(), "yyyy-MM-dd");
+      
+      // Calculate end time based on total duration
+      const [hours, minutes] = time24.split(":").map(Number);
+      const endTime = new Date();
+      endTime.setHours(hours, minutes + calculateTotalDuration());
+      const endTime24 = format(endTime, "HH:mm:ss");
+
+      const appointmentData = {
+        salonId: salon?.id || "",
+        serviceIds: selectedServices.map(s => s.id),
+        appointmentDate: today,
+        startTime: time24 + ":00",
+        endTime: endTime24,
+      };
+
+      const result = await createAppointment(appointmentData);
+      if (result.error) {
+        Alert.alert("Error", result.error);
+      } else {
+        Alert.alert(
+          "Success",
+          "Appointment requested successfully!",
+          [
+            {
+              text: "OK",
+              onPress: () => router.push("/Customer/MyAppointments"),
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to create appointment");
+    }
   };
 
+  const convertTo24Hour = (time12: string): string => {
+    const [time, period] = time12.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    
+    let hour24 = hours;
+    if (period === "PM" && hours !== 12) {
+      hour24 = hours + 12;
+    } else if (period === "AM" && hours === 12) {
+      hour24 = 0;
+    }
+    
+    return `${hour24.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  };
 
   if (loading) {
-    return <ActivityIndicator className="mt-20" />;
+    return (
+      <View style={{ 
+        flex: 1, 
+        backgroundColor: colors.background,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ 
+          color: colors.text,
+          fontSize: 16,
+          marginTop: 16
+        }}>
+          Loading salon details...
+        </Text>
+      </View>
+    );
   }
 
   return (
-    <ScrollView className="flex-1 bg-white p-4">
-      <Text className="text-2xl font-bold mb-2">{salon?.salon_name}</Text>
-      <Text className="text-gray-600 mb-2">{salon?.address}</Text>
-      <Text className="text-gray-600 mb-4">{salon?.city}</Text>
-      <Text className="text-gray-600 mb-2">Working Hours</Text>
-      <Text className="text-gray-600 mb-4">
-        {salon?.open_time} - {salon?.close_time}
-      </Text>
+    <View style={{ 
+      flex: 1, 
+      backgroundColor: colors.background 
+    }}>
+      <ScrollView 
+        style={{ 
+          flex: 1, 
+          backgroundColor: colors.background 
+        }}
+        contentContainerStyle={{
+          padding: 24,
+          paddingTop: 60, // Safe area for status bar
+          paddingBottom: 120, // Safe area for footer
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={{ 
+          color: colors.text,
+          fontSize: 28, 
+          fontWeight: 'bold', 
+          marginBottom: 24 
+        }}>
+          Book Appointment
+        </Text>
 
-      <Text className="text-xl font-bold mb-2">Available Services:</Text>
-      {services.length > 0 ? (
-        services.map((service) => (
-          <View
-            key={service.id}
-            className="border border-gray-200 rounded-lg p-4 mb-4 bg-white shadow-sm"
-          >
-            <Text className="text-lg font-medium">{service.name}</Text>
-            <Text className="text-gray-500">Price: Rs. {service.price}</Text>
-            <Text className="text-gray-500 mb-3">
-              Duration: {service.duration_minutes} min
+        {salon && (
+          <View style={{
+            backgroundColor: colors.surface,
+            padding: 16,
+            borderRadius: 12,
+            marginBottom: 24,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}>
+            <Text style={{ 
+              color: colors.text,
+              fontSize: 20, 
+              fontWeight: '600', 
+              marginBottom: 8 
+            }}>
+              {salon.salon_name}
             </Text>
-            <TouchableOpacity
-              onPress={() => handleBookService(service)}
-              className="bg-blue-500 py-2 px-4 rounded-lg self-start"
-            >
-              <Text className="text-white font-semibold">add now</Text>
-            </TouchableOpacity>
+            <Text style={{ 
+              color: colors.textSecondary,
+              fontSize: 14,
+              marginBottom: 4
+            }}>
+              {salon.address}
+            </Text>
+            <Text style={{ 
+              color: colors.textSecondary,
+              fontSize: 14,
+              marginBottom: 4
+            }}>
+              {salon.city}
+            </Text>
+            <Text style={{ 
+              color: colors.textSecondary,
+              fontSize: 14
+            }}>
+              Hours: {salon.open_time} - {salon.close_time}
+            </Text>
           </View>
-        ))
-      ) : (
-        <Text className="text-gray-500">No services listed yet.</Text>
-      )}
+        )}
 
-      {/* Time Slot Selection */}
-      <View className="mt-6 mb-8">
-        <Text className="text-xl font-bold mb-4">Select Time Slot:</Text>
-        <View className="border border-gray-300 rounded-lg overflow-hidden">
-          <Picker
-            selectedValue={selectedTime}
-            onValueChange={(itemValue) => setSelectedTime(itemValue)}
-          >
-            {timeSlots.length > 0 ? (
-              timeSlots.map((time) => (
-                <Picker.Item key={time} label={time} value={time} />
-              ))
-            ) : (
-              <Picker.Item
-                label="No available slots today"
-                value="No available slots"
-              />
-            )}
-          </Picker>
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 18, 
+            fontWeight: '600', 
+            marginBottom: 12 
+          }}>
+            Select Time
+          </Text>
+          <View style={{
+            backgroundColor: colors.surface,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: colors.border,
+            overflow: 'hidden'
+          }}>
+            <Picker
+              selectedValue={selectedTime}
+              onValueChange={(itemValue) => setSelectedTime(itemValue)}
+              style={{
+                color: colors.text,
+                backgroundColor: colors.surface,
+              }}
+            >
+              {timeSlots.map((slot) => (
+                <Picker.Item 
+                  key={slot} 
+                  label={slot} 
+                  value={slot}
+                  color={colors.text}
+                />
+              ))}
+            </Picker>
+          </View>
         </View>
-      </View>
 
-      {/* Selected Services Section */}
-      <Text className="text-xl font-bold">Selected Services:</Text>
-      <View className="mt-4 mb-20">
-        {selectedServices.length > 0 ? (
-          <>
+        <View style={{ marginBottom: 24 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 18, 
+            fontWeight: '600', 
+            marginBottom: 12 
+          }}>
+            Available Services
+          </Text>
+          {services.map((service) => (
+            <TouchableOpacity
+              key={service.id}
+              onPress={() => handleBookService(service)}
+              style={{
+                backgroundColor: colors.surface,
+                padding: 16,
+                borderRadius: 12,
+                marginBottom: 8,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
+              <View style={{ 
+                flexDirection: 'row', 
+                justifyContent: 'space-between', 
+                alignItems: 'center' 
+              }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ 
+                    color: colors.text,
+                    fontSize: 16, 
+                    fontWeight: '600', 
+                    marginBottom: 4 
+                  }}>
+                    {service.name}
+                  </Text>
+                  <Text style={{ 
+                    color: colors.textSecondary,
+                    fontSize: 14 
+                  }}>
+                    {service.duration_minutes} minutes
+                  </Text>
+                </View>
+                <Text style={{ 
+                  color: colors.primary,
+                  fontSize: 16, 
+                  fontWeight: '600' 
+                }}>
+                  Rs. {service.price}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {selectedServices.length > 0 && (
+          <View style={{ marginBottom: 24 }}>
+            <Text style={{ 
+              color: colors.text,
+              fontSize: 18, 
+              fontWeight: '600', 
+              marginBottom: 12 
+            }}>
+              Selected Services
+            </Text>
             {selectedServices.map((service) => (
               <View
                 key={service.id}
-                className="bg-gray-50 rounded-lg p-4 mb-3 border border-gray-200"
+                style={{
+                  backgroundColor: colors.surface,
+                  padding: 16,
+                  borderRadius: 12,
+                  marginBottom: 8,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
               >
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1">
-                    <Text className="text-lg font-medium">{service.name}</Text>
-                    <Text className="text-gray-500">
-                      Price: Rs. {service.price}
-                    </Text>
-                    <Text className="text-gray-500">
-                      Duration: {service.duration_minutes} min
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => removeService(service.id)}
-                    className="ml-4 p-2"
-                  >
-                    <Ionicons name="close-circle" size={24} color="#ef4444" />
-                  </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ 
+                    color: colors.text,
+                    fontSize: 16, 
+                    fontWeight: '600' 
+                  }}>
+                    {service.name}
+                  </Text>
+                  <Text style={{ 
+                    color: colors.textSecondary,
+                    fontSize: 14 
+                  }}>
+                    Rs. {service.price}
+                  </Text>
                 </View>
+                <TouchableOpacity
+                  onPress={() => removeService(service.id)}
+                  style={{
+                    backgroundColor: colors.error,
+                    padding: 8,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Ionicons name="close" size={16} color={colors.surface} />
+                </TouchableOpacity>
               </View>
             ))}
-            <View className="bg-blue-50 p-4 rounded-lg mt-2">
-              <Text className="text-lg font-semibold">
+            
+            <View style={{
+              backgroundColor: colors.surface,
+              padding: 16,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}>
+              <Text style={{ 
+                color: colors.text,
+                fontSize: 16, 
+                fontWeight: '600', 
+                marginBottom: 4 
+              }}>
                 Total Duration: {calculateTotalDuration()} minutes
               </Text>
-              <Text className="text-lg font-semibold">
+              <Text style={{ 
+                color: colors.primary,
+                fontSize: 18, 
+                fontWeight: 'bold' 
+              }}>
                 Total Amount: Rs. {calculateTotal()}
               </Text>
             </View>
-            <TouchableOpacity
-              onPress={handleRequestBooking}
-              className="bg-blue-500 py-3 px-6 rounded-lg mt-4 self-center"
-            >
-              <Text className="text-white font-semibold text-lg">
-                Request Booking
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <View className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <Text className="text-gray-500 text-center">No services added</Text>
           </View>
         )}
-      </View>
-    </ScrollView>
+
+        <TouchableOpacity
+          onPress={handleRequestBooking}
+          disabled={selectedServices.length === 0}
+          style={{
+            backgroundColor: selectedServices.length === 0 ? colors.border : colors.primary,
+            padding: 16,
+            borderRadius: 12,
+            alignItems: 'center',
+            opacity: selectedServices.length === 0 ? 0.6 : 1,
+          }}
+        >
+          <Text style={{ 
+            color: colors.surface,
+            fontSize: 16, 
+            fontWeight: '600' 
+          }}>
+            Request Booking
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <Footer />
+    </View>
   );
 }

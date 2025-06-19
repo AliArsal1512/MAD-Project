@@ -1,10 +1,13 @@
-import Footer from '../components/customer/Footer';
 import { FontAwesome } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchCustomerAppointments } from '../apis/customerApi';
+import Footer from '../components/customer/Footer';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 export default function MyAppointments() {
+  const { colors } = useThemeContext();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,21 +57,69 @@ export default function MyAppointments() {
     else if (isExpired) buttonLabel = "Expired";
   
     return (
-      <View className="bg-white p-4 mb-4 rounded shadow">
-        <Text className="text-lg font-bold mb-1">{item.barberName}</Text>
-        <Text className="text-gray-700 mb-1">⏰ {item.time}</Text>
-        <Text className="text-gray-700 mb-1">📍 {item.address}, {item.city}</Text>
-        <View className="flex-row items-center mb-3">
-          <Text className="text-gray-700 mr-2">⭐ {item.rating}</Text>
+      <View style={{
+        backgroundColor: colors.card,
+        padding: 16,
+        marginBottom: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.border,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      }}>
+        <Text style={{
+          color: colors.text,
+          fontSize: 18,
+          fontWeight: 'bold',
+          marginBottom: 4
+        }}>
+          {item.barberName}
+        </Text>
+        <Text style={{
+          color: colors.textSecondary,
+          marginBottom: 4
+        }}>
+          ⏰ {item.time}
+        </Text>
+        <Text style={{
+          color: colors.textSecondary,
+          marginBottom: 4
+        }}>
+          📍 {item.address}, {item.city}
+        </Text>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: 12
+        }}>
+          <Text style={{
+            color: colors.textSecondary,
+            marginRight: 8
+          }}>
+            ⭐ {item.rating}
+          </Text>
           <FontAwesome name="star" size={16} color="#FFD700" />
         </View>
   
         <TouchableOpacity
           onPress={() => canCancel && handleCancel(item.id)}
           disabled={!canCancel}
-          className={`${canCancel ? "bg-red-500" : "bg-gray-400"} px-4 py-2 rounded`}
+          style={{
+            backgroundColor: canCancel ? colors.error : colors.textSecondary,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 8,
+            opacity: canCancel ? 1 : 0.6,
+          }}
         >
-          <Text className="text-white text-center font-semibold">
+          <Text style={{
+            color: 'white',
+            textAlign: 'center',
+            fontWeight: '600'
+          }}>
             {buttonLabel}
           </Text>
         </TouchableOpacity>
@@ -78,24 +129,57 @@ export default function MyAppointments() {
   
 
   return (
-    <View className="flex-1 justify-between bg-white p-4 mb-4">
-      <View className="flex-1 bg-gray-100 p-4">
-        <Text className="text-2xl font-bold mb-4 text-center">My Appointments</Text>
+    <SafeAreaView style={{
+      flex: 1,
+      backgroundColor: colors.background
+    }}>
+      <View style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        padding: 16
+      }}>
+        <Text style={{
+          color: colors.text,
+          fontSize: 24,
+          fontWeight: 'bold',
+          marginBottom: 16,
+          textAlign: 'center'
+        }}>
+          My Appointments
+        </Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#000" className="mt-20" />
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
         ) : appointments.length === 0 ? (
-          <Text className="text-center text-gray-600 mt-20">No appointments found.</Text>
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <Text style={{
+              color: colors.textSecondary,
+              textAlign: 'center'
+            }}>
+              No appointments found.
+            </Text>
+          </View>
         ) : (
           <FlatList
             data={appointments}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
         )}
       </View>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }

@@ -1,10 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert, BackHandler, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { logoutUser } from "../apis/authApi";
 import Footer from '../components/salon/Footer';
+import { ThemeToggle } from "../components/ThemeToggle";
+import { useThemeContext } from "../contexts/ThemeContext";
 
-export default function BarberSettings() {
+export default function SalonSettings() {
   const router = useRouter();
+  const { colors } = useThemeContext();
 
   // Handle hardware back to exit app
   useEffect(() => {
@@ -30,54 +35,156 @@ export default function BarberSettings() {
   }, []);
 
   // Logout handler
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: () => {
-          // handle logout logic
-          router.replace('/auth/login_salon');
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
         },
-      },
-    ]);
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const result = await logoutUser();
+              if (result.success) {
+                router.replace("/role");
+              } else {
+                Alert.alert("Error", result.error || "Failed to logout");
+              }
+            } catch (error) {
+              Alert.alert("Error", "Something went wrong");
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
-    <View className="flex-1 justify-between bg-white p-4 mb-4">
-      <View className="flex-1 bg-white p-6">
-        <Text className="text-2xl font-bold mb-6">Barber Settings</Text>
+    <SafeAreaView style={{ 
+      flex: 1, 
+      backgroundColor: colors.background 
+    }}>
+      <View style={{ 
+        flex: 1, 
+        backgroundColor: colors.background, 
+        padding: 24 
+      }}>
+        <Text style={{ 
+          color: colors.text,
+          fontSize: 28, 
+          fontWeight: 'bold', 
+          marginBottom: 24 
+        }}>
+          Salon Settings
+        </Text>
+
+        {/* Theme Toggle */}
+        <View style={{ marginBottom: 24 }}>
+          <ThemeToggle showSyncStatus={true} />
+        </View>
 
         <TouchableOpacity
-          className="bg-gray-100 p-4 rounded-lg mb-4"
+          style={{
+            backgroundColor: colors.surface,
+            padding: 16,
+            borderRadius: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
           onPress={() => router.push('/Salon/edit-profile')}
         >
-          <Text className="text-lg">Edit Profile</Text>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16 
+          }}>
+            Edit Profile
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
-          onPress={() => router.push('/Salon/Appointments')}>
-          <Text className="text-lg">Manage Appointments</Text>
+        <TouchableOpacity 
+          style={{
+            backgroundColor: colors.surface,
+            padding: 16,
+            borderRadius: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+          onPress={() => router.push('/Salon/Appointments')}
+        >
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16 
+          }}>
+            Manage Appointments
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4"
-          onPress={() => router.push('/Salon/Services')}>
-          <Text className="text-lg">Manage Services</Text>
+        <TouchableOpacity 
+          style={{
+            backgroundColor: colors.surface,
+            padding: 16,
+            borderRadius: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+          onPress={() => router.push('/Salon/Services')}
+        >
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16 
+          }}>
+            Manage Services
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="bg-gray-100 p-4 rounded-lg mb-4">
-          <Text className="text-lg">Privacy Policy</Text>
+        <TouchableOpacity 
+          style={{
+            backgroundColor: colors.surface,
+            padding: 16,
+            borderRadius: 12,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 16 
+          }}>
+            Privacy Policy
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          className="bg-red-100 p-4 rounded-lg mt-6"
+          style={{
+            backgroundColor: colors.error + '20',
+            padding: 16,
+            borderRadius: 12,
+            marginTop: 24,
+            borderWidth: 1,
+            borderColor: colors.error + '40',
+          }}
           onPress={handleLogout}
         >
-          <Text className="text-lg text-red-600 font-semibold">Logout</Text>
+          <Text style={{ 
+            color: colors.error,
+            fontSize: 16, 
+            fontWeight: '600',
+            textAlign: 'center'
+          }}>
+            Logout
+          </Text>
         </TouchableOpacity>
       </View>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }

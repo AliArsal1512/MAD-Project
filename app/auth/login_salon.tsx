@@ -12,11 +12,13 @@ import {
   View,
 } from "react-native";
 import { loginUser } from "../apis/authApi";
+import { useThemeContext } from "../contexts/ThemeContext";
 import { saveExpoPushToken } from "../utils/saveExpoPushToken";
 import { usePushToken } from "../utils/usePushToken";
 
 export default function LoginBarber() {
   const router = useRouter();
+  const { colors, isDark } = useThemeContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,61 +63,103 @@ export default function LoginBarber() {
       setLoading(false);
     }
   };
-  
+
+  const gradientColors = isDark 
+    ? ['#1f2937', '#111827'] as const
+    : ['#f3f4f6', '#ffffff'] as const;
+
   return (
     <LinearGradient
-      colors={['#f3f4f6', '#ffffff']}
-      className="flex-1"
+      colors={gradientColors}
+      style={{ flex: 1 }}
     >
-      <View className="flex-1 justify-center p-6">
+      <View style={{ 
+        flex: 1, 
+        justifyContent: 'center', 
+        padding: 24,
+        backgroundColor: 'transparent'
+      }}>
         {/* Back Button */}
-      <TouchableOpacity
-        onPress={() => router.replace('/role')} // Use your actual route name for role.tsx
-        style={{
-          padding: 10,
-          backgroundColor: '#eee',
-          borderRadius: 5,
-          alignSelf: 'flex-start',
-          marginBottom: 20,
-        }}
-      >
-        <Text>← Back</Text>
-      </TouchableOpacity>
-        <View className="flex items-center mb-12">
-          <Text className="text-4xl font-bold text-gray-800 mb-2">Welcome Back Barb</Text>
-          <Text className="text-lg text-gray-600">Sign in to your salon account</Text>
+        <TouchableOpacity
+          onPress={() => router.replace('/role')}
+          style={{
+            padding: 10,
+            backgroundColor: colors.surface,
+            borderRadius: 5,
+            alignSelf: 'flex-start',
+            marginBottom: 20,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Text style={{ color: colors.text }}>← Back</Text>
+        </TouchableOpacity>
+
+        <View style={{ alignItems: 'center', marginBottom: 48 }}>
+          <Text style={{ 
+            color: colors.text,
+            fontSize: 32, 
+            fontWeight: 'bold', 
+            marginBottom: 8 
+          }}>
+            Welcome Back
+          </Text>
+          <Text style={{ 
+            color: colors.textSecondary,
+            fontSize: 18 
+          }}>
+            Sign in to continue
+          </Text>
         </View>
 
-        <View className="space-y-4">
-          <View className="relative">
+        <View style={{ gap: 16 }}>
+          <View style={{ position: 'relative' }}>
             <TextInput
               placeholder="Email"
+              placeholderTextColor={colors.textSecondary}
               value={email}
               onChangeText={setEmail}
-              className="bg-white p-4 rounded-xl border border-gray-200 pl-12"
+              style={{
+                backgroundColor: colors.card,
+                padding: 16,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                paddingLeft: 48,
+                color: colors.text,
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
             />
             <Ionicons
               name="mail-outline"
               size={20}
-              color="#6b7280"
+              color={colors.textSecondary}
               style={{ position: 'absolute', left: 16, top: 16 }}
             />
           </View>
 
-          <View className="relative">
+          <View style={{ position: 'relative' }}>
             <TextInput
               placeholder="Password"
+              placeholderTextColor={colors.textSecondary}
               value={password}
               onChangeText={setPassword}
-              className="bg-white p-4 rounded-xl border border-gray-200 pl-12"
+              style={{
+                backgroundColor: colors.card,
+                padding: 16,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                paddingLeft: 48,
+                color: colors.text,
+              }}
               secureTextEntry={!showPassword}
             />
             <Ionicons
               name="lock-closed-outline"
               size={20}
-              color="#6b7280"
+              color={colors.textSecondary}
               style={{ position: 'absolute', left: 16, top: 16 }}
             />
             <TouchableOpacity
@@ -125,7 +169,7 @@ export default function LoginBarber() {
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
-                color="#6b7280"
+                color={colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -133,32 +177,52 @@ export default function LoginBarber() {
 
         <TouchableOpacity
           onPress={handleLogin}
-          className="bg-blue-600 p-4 rounded-xl mt-8 shadow-lg"
-          disabled={loading}
           style={{
+            backgroundColor: colors.primary,
+            padding: 16,
+            borderRadius: 12,
+            marginTop: 32,
             elevation: 5,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 8,
           }}
+          disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text className="text-white text-center font-bold text-lg">
+            <Text style={{
+              color: 'white',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              fontSize: 18
+            }}>
               Sign In
             </Text>
           )}
         </TouchableOpacity>
 
-        <View className="mt-6 flex-row justify-center items-center">
-          <Text className="text-gray-600">Don't have an account? </Text>
+        <View style={{ 
+          marginTop: 24, 
+          flexDirection: 'row', 
+          justifyContent: 'center', 
+          alignItems: 'center' 
+        }}>
+          <Text style={{ color: colors.textSecondary }}>
+            Don't have an account? 
+          </Text>
           <TouchableOpacity 
             onPress={() => router.push("/auth/register_salon")}
-            className="ml-1"
+            style={{ marginLeft: 4 }}
           >
-            <Text className="text-blue-600 font-semibold">Sign Up</Text>
+            <Text style={{ 
+              color: colors.primary, 
+              fontWeight: '600' 
+            }}>
+              Sign Up
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

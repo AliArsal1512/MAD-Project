@@ -35,6 +35,7 @@ export async function signUpCustomer(input: CustomerSignUpInput) {
     phone,
     email,
     gender,
+    theme: 'light', // Default theme
   });
 
   if (insertError) return { error: insertError.message };
@@ -65,6 +66,7 @@ export async function signUpSalon(input: SalonSignUpInput) {
     close_time: "18:00",
     ambience_images: [],
     description: "",
+    theme: 'light', // Default theme
   });
 
   if (insertError) return { error: insertError.message };

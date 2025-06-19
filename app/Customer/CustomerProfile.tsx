@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -10,9 +11,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Footer from '../components/customer/Footer';
-import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCurrentCustomerProfile } from '../apis/customerApi';
+import Footer from '../components/customer/Footer';
+import { useThemeContext } from '../contexts/ThemeContext';
 
 const initialCustomerInfo = {
   image:
@@ -24,10 +26,11 @@ const initialCustomerInfo = {
 };
 
 export default function CustomerProfile() {
+  const { colors } = useThemeContext();
   const [customerInfo, setCustomerInfo] = useState(initialCustomerInfo);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-    const router = useRouter();
+  const router = useRouter();
 
   const handleChange = (field: keyof typeof customerInfo, value: string) => {
     setCustomerInfo((prev) => ({ ...prev, [field]: value }));
@@ -77,90 +80,203 @@ export default function CustomerProfile() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text>Loading profile...</Text>
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.background
+      }}>
+        <Text style={{ color: colors.text }}>Loading profile...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 justify-between bg-white p-4 mb-4">
-      <ScrollView className="flex-row bg-gray-300 px-10">
-        <View className="flex justify-center items-start">
+    <SafeAreaView style={{
+      flex: 1,
+      backgroundColor: colors.background
+    }}>
+      <ScrollView style={{
+        flex: 1,
+        backgroundColor: colors.background,
+        paddingHorizontal: 40
+      }}>
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'flex-start'
+        }}>
           {/* Edit/Save Toggle */}
           <TouchableOpacity
-            className="absolute top-6 right-6 bg-blue-500 px-4 py-1 rounded"
+            style={{
+              position: 'absolute',
+              top: 24,
+              right: 24,
+              backgroundColor: colors.primary,
+              paddingHorizontal: 16,
+              paddingVertical: 4,
+              borderRadius: 8,
+            }}
             onPress={() => router.push('/Customer/edit-profile')}
           >
-            <Text className="text-white font-semibold">
+            <Text style={{
+              color: 'white',
+              fontWeight: '600'
+            }}>
               {isEditing ? 'Save' : 'Edit'}
             </Text>
           </TouchableOpacity>
 
           {/* Profile Image and Name */}
-          <View className="items-center mb-6 mt-10">
+          <View style={{
+            alignItems: 'center',
+            marginBottom: 24,
+            marginTop: 40,
+            width: '100%'
+          }}>
             <Image
               source={{ uri: customerInfo.image }}
-              className="w-32 h-32 rounded-full mb-4"
+              style={{
+                width: 128,
+                height: 128,
+                borderRadius: 64,
+                marginBottom: 16
+              }}
             />
             {isEditing ? (
               <TextInput
                 value={customerInfo.name}
                 onChangeText={(text) => handleChange('name', text)}
-                className="border border-gray-300 rounded px-3 py-1 w-full text-center text-xl font-bold"
+                style={{
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 4,
+                  width: '100%',
+                  textAlign: 'center',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  color: colors.text,
+                  backgroundColor: colors.card,
+                }}
+                placeholderTextColor={colors.textSecondary}
               />
             ) : (
-              <Text className="text-2xl font-bold">{customerInfo.name}</Text>
+              <Text style={{
+                color: colors.text,
+                fontSize: 24,
+                fontWeight: 'bold'
+              }}>
+                {customerInfo.name}
+              </Text>
             )}
           </View>
 
           {/* Phone */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">📞 Phone</Text>
+          <View style={{ marginBottom: 16, width: '100%' }}>
+            <Text style={{
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: '600',
+              marginBottom: 4
+            }}>
+              📞 Phone
+            </Text>
             {isEditing ? (
               <TextInput
                 value={customerInfo.phone}
                 onChangeText={(text) => handleChange('phone', text)}
-                className="border border-gray-300 rounded px-3 py-2 text-gray-700"
+                style={{
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  color: colors.text,
+                  backgroundColor: colors.card,
+                }}
+                placeholderTextColor={colors.textSecondary}
               />
             ) : (
               <TouchableOpacity onPress={handleCall}>
-                <Text className="text-blue-500 underline">{customerInfo.phone}</Text>
+                <Text style={{
+                  color: colors.primary,
+                  textDecorationLine: 'underline'
+                }}>
+                  {customerInfo.phone}
+                </Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Email */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">📧 Email</Text>
+          <View style={{ marginBottom: 16, width: '100%' }}>
+            <Text style={{
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: '600',
+              marginBottom: 4
+            }}>
+              📧 Email
+            </Text>
             {isEditing ? (
               <TextInput
                 value={customerInfo.email}
                 onChangeText={(text) => handleChange('email', text)}
                 keyboardType="email-address"
-                className="border border-gray-300 rounded px-3 py-2 text-gray-700"
+                style={{
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  color: colors.text,
+                  backgroundColor: colors.card,
+                }}
+                placeholderTextColor={colors.textSecondary}
               />
             ) : (
-              <Text className="text-gray-700">{customerInfo.email}</Text>
+              <Text style={{ color: colors.textSecondary }}>
+                {customerInfo.email}
+              </Text>
             )}
           </View>
 
           {/* Gender */}
-          <View className="mb-10">
-            <Text className="text-lg font-semibold mb-1">⚧ Gender</Text>
+          <View style={{ marginBottom: 40, width: '100%' }}>
+            <Text style={{
+              color: colors.text,
+              fontSize: 18,
+              fontWeight: '600',
+              marginBottom: 4
+            }}>
+              ⚧ Gender
+            </Text>
             {isEditing ? (
               <TextInput
                 value={customerInfo.gender}
                 onChangeText={(text) => handleChange('gender', text)}
-                className="border border-gray-300 rounded px-3 py-2 text-gray-700"
+                style={{
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  color: colors.text,
+                  backgroundColor: colors.card,
+                }}
+                placeholderTextColor={colors.textSecondary}
               />
             ) : (
-              <Text className="text-gray-700">{customerInfo.gender}</Text>
+              <Text style={{ color: colors.textSecondary }}>
+                {customerInfo.gender}
+              </Text>
             )}
           </View>
         </View>
       </ScrollView>
       <Footer />
-    </View>
+    </SafeAreaView>
   );
 }
